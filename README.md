@@ -1,9 +1,8 @@
 # EIMIS experimentation whitelist Synapse module
 
 ![Matrix](https://img.shields.io/badge/matrix-000000?logo=Matrix&logoColor=white)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/eimis-ans/eimis-prosante-connect-module/lint.yml?label=lint&logo=github)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/eimis-ans/eimis-prosante-connect-module/test.yml?label=test&logo=github)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/eimis-ans/white-list-synapse-module/lint.yml?label=lint&logo=github)
+![License](https://img.shields.io/badge/license-Apache%202-blue.svg)
 
 ## Use case
 
