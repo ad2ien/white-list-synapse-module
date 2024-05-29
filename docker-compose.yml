@@ -1,0 +1,89 @@
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - keycloak-db:/var/lib/postgresql/data
+      - ./docker-test-config/db-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_MULTIPLE_DATABASES=synapse,keycloak
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U root -d keycloak'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  keycloak:
+    image: keycloak/keycloak:23.0.3
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      - KC_HOSTNAME=idp.local
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_LOGLEVEL=INFO
+      - DB_VENDOR=postgres
+      - DB_ADDR=postgres
+      - DB_DATABASE=keycloak
+      - DB_USER=root
+      - DB_PASSWORD=secret
+    volumes:
+      - ./docker-test-config/kc-conf/certificate.pem:/opt/keycloak/certificate.pem:ro
+      - ./docker-test-config/kc-conf/privatekey.pem:/opt/keycloak/privatekey.pem:ro
+      - ./docker-test-config/realm-export-local.json:/opt/keycloak/data/import/realm-export-local.json:ro
+    command:
+      - start
+      - --import-realm
+      - --https-certificate-file=/opt/keycloak/certificate.pem
+      - --https-certificate-key-file=/opt/keycloak/privatekey.pem
+      - --health-enabled=true
+
+  keycloak-health:
+    image: curlimages/curl
+    command: [ "sh", "-c", "while true; do sleep 1; done" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --head -fsS --insecure --http1.1  https://keycloak:8443/health/ready" ]
+      interval: 15s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  synapse:
+    image: matrixdotorg/synapse:v1.104.0
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./docker-test-config/mx-data:/data
+      - ./docker-test-config/mx-conf:/mx-conf/
+      - ./docker-test-config/kc-conf/certificate.pem:/mx-conf/cert/certificate.pem:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak-health:
+        condition: service_healthy
+    environment:
+      - SYNAPSE_CONFIG_PATH=/mx-conf/homeserver.yaml
+      - SSL_CERT_FILE=/mx-conf/cert/certificate.pem
+    develop:
+      watch:
+        - path: ./white_list_module
+          action: sync+restart
+          target: /usr/local/lib/python3.11/site-packages/synapse
+        - path: ./docker-test-config/mx-conf
+          action: sync+restart
+          target: /mx-conf
+
+  element:
+    container_name: element-local
+    image: vectorim/element-web:v1.11.31
+    ports:
+      - "1983:80"
+    volumes:
+      - ./docker-test-config/element-config.json:/app/config.json
+
+volumes:
+  keycloak-db:
