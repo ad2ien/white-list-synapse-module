@@ -69,14 +69,6 @@ services:
     environment:
       - SYNAPSE_CONFIG_PATH=/mx-conf/homeserver.yaml
       - SSL_CERT_FILE=/mx-conf/cert/certificate.pem
-    develop:
-      watch:
-        - path: ./white_list_module
-          action: sync+restart
-          target: /usr/local/lib/python3.11/site-packages/synapse
-        - path: ./docker-test-config/mx-conf
-          action: sync+restart
-          target: /mx-conf
 
   element:
     container_name: element-local

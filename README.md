@@ -77,11 +77,3 @@ tox -e check_codestyle
 ```bash
 tox -e py
 ```
-
-### run locally
-
-```bash
-docker compose watch
-```
-
-(Any change in the module or the conf will restart Synapse container)
