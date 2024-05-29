@@ -60,6 +60,7 @@ services:
       - ./docker-test-config/mx-data:/data
       - ./docker-test-config/mx-conf:/mx-conf/
       - ./docker-test-config/kc-conf/certificate.pem:/mx-conf/cert/certificate.pem:ro
+      - ./white_list_module/:/usr/local/lib/python3.11/site-packages/white_list_module
     depends_on:
       db:
         condition: service_healthy
