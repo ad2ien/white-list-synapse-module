@@ -36,7 +36,6 @@ class EimisWhiteList:
             A EimisBroadcastConfig generated from this configuration
         """
 
-        # TODO check config
         logger.info("EIMIS config EimisWhiteList")
 
         return EimisWhiteListConfig(
@@ -89,12 +88,16 @@ class EimisWhiteList:
         last_events = await self._api._store.get_latest_event_ids_in_room(
             self._config.room_id
         )
+
+        if not last_events or len(last_events) == 0:
+            return whitelist
+
         event_id = list(last_events)[0]
 
         while event_id:
             event = await self._api._store.get_event(event_id, allow_none=True)
 
-            if event.type == "m.room.message":
+            if event.type and event.type == "m.room.message":
                 content = self.get_last_content(event.content)
                 whitelist.update(content.split("\n"))
 
@@ -116,5 +119,8 @@ class EimisWhiteList:
         """
         while "m.new_content" in event_content.keys():
             event_content = event_content["m.new_content"]
+
+        if "body" not in event_content.keys():
+            return ""
 
         return event_content["body"]
