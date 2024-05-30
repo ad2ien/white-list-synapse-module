@@ -45,7 +45,7 @@ trusted_key_servers:
 modules:
   - module: white_list_module.EimisWhiteList
     config:
-      room_id: "!TQMkeSggGjanthGUgU:matrix.local"
+      room_id: ""
       idp_id: "keycloak"
 oidc_providers:
   - idp_id: keycloak
