@@ -17,7 +17,7 @@ services:
       retries: 3
 
   keycloak:
-    image: keycloak/keycloak:23.0.3
+    image: keycloak/keycloak:24.0.4
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -71,8 +71,7 @@ services:
       - SSL_CERT_FILE=/mx-conf/cert/certificate.pem
 
   element:
-    container_name: element-local
-    image: vectorim/element-web:v1.11.31
+    image: vectorim/element-web:v1.11.62
     ports:
       - "1983:80"
     volumes:
