@@ -3,6 +3,7 @@ from unittest import mock
 import aiounittest
 from synapse.api.room_versions import RoomVersions
 from synapse.events import EventBase, make_event_from_dict
+from synapse.spam_checker_api import RegistrationBehaviour
 
 from tests import MockModuleApi
 from white_list_module import EimisWhiteList
@@ -141,3 +142,36 @@ class EimisWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
         self.assertTrue("yvonne" in result)
         self.assertTrue("potiron" in result)
         self.assertTrue("glandine" in result)
+
+    async def test_check_registration_whitelist_other_idp(self):
+
+        result = await self.module.check_registration_whitelist(
+            None, "yvonne", [], "not_idp"
+        )
+        self.assertEqual(result, RegistrationBehaviour.ALLOW)
+
+    async def test_check_registration_whitelist_no_idp(self):
+        config = EimisWhiteList.parse_config(
+            {
+                "idp_id": "",
+                "room_id": "room_id",
+            }
+        )
+        module = EimisWhiteList(config, MockModuleApi())
+
+        result = await module.check_registration_whitelist(
+            None, "yvonne", [], "not_idp"
+        )
+        self.assertEqual(result, RegistrationBehaviour.ALLOW)
+
+
+def test_parse_config():
+    config = EimisWhiteList.parse_config(
+        {
+            "idp_id": "idp_id",
+            "room_id": "room_id",
+        }
+    )
+
+    assert config.idp_id == "oidc-idp_id"
+    assert config.room_id == "room_id"
