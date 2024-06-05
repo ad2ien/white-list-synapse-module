@@ -11,13 +11,13 @@ services:
       - POSTGRES_PASSWORD=secret
       - POSTGRES_MULTIPLE_DATABASES=synapse,keycloak
     healthcheck:
-      test: [ "CMD-SHELL", "sh -c 'pg_isready -U root -d keycloak'" ]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U root -d keycloak'"]
       interval: 10s
       timeout: 3s
       retries: 3
 
   keycloak:
-    image: keycloak/keycloak:23.0.3
+    image: keycloak/keycloak:24.0.4
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -44,9 +44,13 @@ services:
 
   keycloak-health:
     image: curlimages/curl
-    command: [ "sh", "-c", "while true; do sleep 1; done" ]
+    command: ["sh", "-c", "while true; do sleep 1; done"]
     healthcheck:
-      test: [ "CMD-SHELL", "curl --head -fsS --insecure --http1.1  https://keycloak:8443/health/ready" ]
+      test:
+        [
+          "CMD-SHELL",
+          "curl --head -fsS --insecure --http1.1  https://keycloak:8443/health/ready",
+        ]
       interval: 15s
       timeout: 30s
       retries: 5
@@ -71,8 +75,7 @@ services:
       - SSL_CERT_FILE=/mx-conf/cert/certificate.pem
 
   element:
-    container_name: element-local
-    image: vectorim/element-web:v1.11.31
+    image: vectorim/element-web:v1.11.62
     ports:
       - "1983:80"
     volumes:

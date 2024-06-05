@@ -99,7 +99,7 @@ class EimisWhiteList:
 
             if event.type and event.type == "m.room.message":
                 content = self.get_last_content(event.content)
-                whitelist.update(content.split("\n"))
+                whitelist.update(content.lower().split("\n"))
 
             if event.prev_event_ids():
                 event_id = event.prev_event_ids()[0]

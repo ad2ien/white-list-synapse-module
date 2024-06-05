@@ -43,10 +43,10 @@ use_insecure_ssl_client_just_for_testing_do_not_use: true
 trusted_key_servers:
   - server_name: "matrix.org"
 modules:
-- module: white_list_module.EimisWhiteList
-  config:
-    room_id: "!TQMkeSggGjanthGUgU:matrix.local"
-    idp_id: "keycloak"
+  - module: white_list_module.EimisWhiteList
+    config:
+      room_id: ""
+      idp_id: "keycloak"
 oidc_providers:
   - idp_id: keycloak
     idp_name: "EIMIS Connect"
