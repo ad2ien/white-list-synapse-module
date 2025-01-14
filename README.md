@@ -28,6 +28,13 @@ echo "127.0.0.1 matrix.local" | sudo tee -a /etc/hosts
 docker compose up -d
 ```
 
+depending on your set up you may have to do this for Synapse to run properly:
+
+```bash
+mkdir docker-test-config/mx-data/media_store; 
+sudo chown -R root:root docker-test-config/mx-data/ 
+```
+
 ### Create users
 
 Create a _whitelist-manager_ and _beta-tester_ user
