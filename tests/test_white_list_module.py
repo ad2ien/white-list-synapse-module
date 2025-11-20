@@ -6,7 +6,7 @@ from synapse.events import EventBase, make_event_from_dict
 from synapse.spam_checker_api import RegistrationBehaviour
 
 from tests import MockModuleApi
-from white_list_module import EimisWhiteList
+from white_list_module import EasyWhiteList
 
 
 def create_event(
@@ -27,15 +27,15 @@ def create_event(
     )
 
 
-class EimisWhiteListGetLastContentTestClass(aiounittest.AsyncTestCase):
+class EasyWhiteListGetLastContentTestClass(aiounittest.AsyncTestCase):
     def setUp(self):
-        self.config = EimisWhiteList.parse_config(
+        self.config = EasyWhiteList.parse_config(
             {
                 "idp_id": "idp_id",
                 "room_id": "room_id",
             }
         )
-        self.module = EimisWhiteList(self.config, MockModuleApi())
+        self.module = EasyWhiteList(self.config, MockModuleApi())
 
     def test_get_last_content_no_content(self):
 
@@ -75,15 +75,15 @@ class EimisWhiteListGetLastContentTestClass(aiounittest.AsyncTestCase):
         self.assertEqual(result, "patapouf\npignolin\nroger\ntartanfion")
 
 
-class EimisWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
+class EasyWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
     def setUp(self):
-        self.config = EimisWhiteList.parse_config(
+        self.config = EasyWhiteList.parse_config(
             {
                 "idp_id": "idp_id",
                 "room_id": "room_id",
             }
         )
-        self.module = EimisWhiteList(self.config, MockModuleApi())
+        self.module = EasyWhiteList(self.config, MockModuleApi())
 
     async def test_get_whitelist_from_content_no_event(self):
 
@@ -151,13 +151,13 @@ class EimisWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
         self.assertEqual(result, RegistrationBehaviour.ALLOW)
 
     async def test_check_registration_whitelist_no_idp(self):
-        config = EimisWhiteList.parse_config(
+        config = EasyWhiteList.parse_config(
             {
                 "idp_id": "",
                 "room_id": "room_id",
             }
         )
-        module = EimisWhiteList(config, MockModuleApi())
+        module = EasyWhiteList(config, MockModuleApi())
 
         result = await module.check_registration_whitelist(
             None, "yvonne", [], "not_idp"
@@ -166,7 +166,7 @@ class EimisWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
 
 
 def test_parse_config():
-    config = EimisWhiteList.parse_config(
+    config = EasyWhiteList.parse_config(
         {
             "idp_id": "idp_id",
             "room_id": "room_id",

@@ -9,14 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class EimisWhiteListConfig:
+class EasyWhiteListConfig:
     idp_id: Optional[str] = None
     room_id: Optional[str] = None
 
 
-class EimisWhiteList:
-    def __init__(self, config: EimisWhiteListConfig, api: ModuleApi):
-        logger.info("EIMIS init EimisWhiteList")
+class EasyWhiteList:
+    def __init__(self, config: EasyWhiteListConfig, api: ModuleApi):
+        logger.info("Init EasyWhiteList")
 
         self._api = api
         self._config = config
@@ -26,19 +26,19 @@ class EimisWhiteList:
         )
 
     @staticmethod
-    def parse_config(config: Dict[str, Any]) -> EimisWhiteListConfig:
-        """Instantiates a EimisBroadcastConfig.
+    def parse_config(config: Dict[str, Any]) -> EasyWhiteListConfig:
+        """Instantiates a EasyWhiteListConfig.
 
         Args:
             config: The raw configuration dict.
 
         Returns:
-            A EimisBroadcastConfig generated from this configuration
+            A EasyWhiteListConfig generated from this configuration
         """
 
-        logger.info("EIMIS config EimisWhiteList")
+        logger.info("Config EasyWhiteList")
 
-        return EimisWhiteListConfig(
+        return EasyWhiteListConfig(
             idp_id="oidc-" + config.get("idp_id", None),
             room_id=config.get("room_id", None),
         )
@@ -52,7 +52,7 @@ class EimisWhiteList:
     ) -> RegistrationBehaviour:
 
         logger.info(
-            "EIMIS check_registration_whitelist "
+            "Check_registration_whitelist "
             + str(username)
             + " provider id: "
             + auth_provider_id
@@ -67,7 +67,7 @@ class EimisWhiteList:
             return RegistrationBehaviour.ALLOW
 
         whitelist = await self.get_whitelist_from_content()
-        logger.debug("EIMIS Whitelist: " + str(whitelist))
+        logger.debug("EasyWhitelist: " + str(whitelist))
         return (
             RegistrationBehaviour.ALLOW
             if username in whitelist

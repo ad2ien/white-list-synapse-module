@@ -4,8 +4,6 @@ services:
     volumes:
       - keycloak-db:/var/lib/postgresql/data
       - ./docker-test-config/db-init:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=secret
