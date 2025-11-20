@@ -56,10 +56,7 @@ oidc_providers:
     client_secret: "M5nXccmhTMzDldFs2FYQFTLJVAw8yjLk"
     scopes: ["openid", "profile"]
     user_mapping_provider:
-      # module: synapse.white_list_module.ProsanteConnectMappingProvider
       config:
         localpart_template: "{{ user.preferred_username }}"
         display_name_template: "{{ user.name }}"
     backchannel_logout_enabled: true # Optional
-
-# vim:ft=yaml

@@ -39,7 +39,7 @@ sudo chown -R root:root docker-test-config/mx-data/
 
 Create a _whitelist-manager_ and _beta-tester_ user
 
-- Go to <http://idp.local:8443>
+- Go to <https://idp.local:8443>
 - login with admin /admin
 - select `local` realm
 - users / `Add a user`
