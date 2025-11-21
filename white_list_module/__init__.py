@@ -27,10 +27,10 @@ class EasyWhiteList:
 
     @staticmethod
     def parse_config(config: Dict[str, Any]) -> EasyWhiteListConfig:
-        """Instantiates a EasyWhiteListConfig.
+        """Instantiates a EasyWhiteListConfig
 
         Args:
-            config: The raw configuration dict.
+            config: The raw configuration dict
 
         Returns:
             A EasyWhiteListConfig generated from this configuration
@@ -75,13 +75,13 @@ class EasyWhiteList:
         )
 
     async def get_whitelist_from_content(self) -> Collection[str]:
-        """Extracts the whitelist from the messages of a room.
+        """Extracts the whitelist from the messages of a room
 
         Args:
-            event: The event to extract the whitelist from.
+            event: The event to extract the whitelist from
 
         Returns:
-            A collection of user IDs to whitelist.
+            A collection of user IDs to whitelist
         """
         whitelist = set()
 
@@ -112,10 +112,10 @@ class EasyWhiteList:
         """Extracts the last content of a message in case this one has been edited
 
         Args:
-            event: The event to extract the content from.
+            event: The event to extract the content from
 
         Returns:
-            The content of the last message.
+            The content of the last message
         """
         while "m.new_content" in event_content.keys():
             event_content = event_content["m.new_content"]
