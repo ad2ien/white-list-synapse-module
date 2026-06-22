@@ -11,8 +11,9 @@ from white_list_module import EasyWhiteList
 
 def create_event(
     message: str,
-    prev_event_id: EventBase = None,
+    prev_event_id: str = None,
 ) -> EventBase:
+    prev_events = [prev_event_id] if prev_event_id else []
     return make_event_from_dict(
         {
             "room_id": "room_id",
@@ -21,7 +22,11 @@ def create_event(
             "sender": "user_id",
             "content": {"body": message},
             "auth_events": [],
-            "prev_events": [prev_event_id],
+            "prev_events": prev_events,
+            "depth": 0,
+            "origin_server_ts": 0,
+            "hashes": {"sha256": "test_hash"},
+            "signatures": {"example.com": {"ed25519:key": "signature"}},
         },
         room_version=RoomVersions.V9,
     )
@@ -122,7 +127,8 @@ class EasyWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
     async def test_get_whitelist_from_content_several_events(self):
 
         event56 = create_event("##Some title\nYvonne")
-        event57 = create_event("##Experiment 2\nPotiron\nGlandine", event56)
+        event56_id = event56.event_id
+        event57 = create_event("##Experiment 2\nPotiron\nGlandine", event56_id)
 
         self.module._api._store = mock.MagicMock()
         self.module._api._store.get_latest_event_ids_in_room = mock.AsyncMock(
