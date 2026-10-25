@@ -38,8 +38,9 @@ class EasyWhiteList:
 
         logger.info("Config EasyWhiteList")
 
+        idp_id = config.get("idp_id")
         return EasyWhiteListConfig(
-            idp_id="oidc-" + config.get("idp_id", None),
+            idp_id="oidc-" + idp_id if idp_id else None,
             room_id=config.get("room_id", None),
         )
 
@@ -52,10 +53,9 @@ class EasyWhiteList:
     ) -> RegistrationBehaviour:
 
         logger.info(
-            "Check_registration_whitelist "
-            + str(username)
-            + " provider id: "
-            + auth_provider_id
+            "Check_registration_whitelist %s provider id: %s",
+            username,
+            auth_provider_id,
         )
 
         # not configured? don't get involved
@@ -68,9 +68,11 @@ class EasyWhiteList:
 
         whitelist = await self.get_whitelist_from_content()
         logger.debug("EasyWhitelist: " + str(whitelist))
+
+        normalized_username = (username or "").strip().lower()
         return (
             RegistrationBehaviour.ALLOW
-            if username in whitelist
+            if normalized_username in whitelist
             else RegistrationBehaviour.DENY
         )
 
@@ -92,14 +94,20 @@ class EasyWhiteList:
         if not last_events or len(last_events) == 0:
             return whitelist
 
-        event_id = list(last_events)[0]
+        event_id: Optional[str] = list(last_events)[0]
 
         while event_id:
             event = await self._api._store.get_event(event_id, allow_none=True)
+            if event is None:
+                break
 
-            if event.type and event.type == "m.room.message":
+            if event.type == "m.room.message":
                 content = self.get_last_content(event.content)
-                whitelist.update(content.lower().split("\n"))
+                whitelist.update(
+                    line.strip().lower()
+                    for line in content.splitlines()
+                    if line.strip()
+                )
 
             if event.prev_event_ids():
                 event_id = event.prev_event_ids()[0]

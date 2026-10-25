@@ -149,6 +149,58 @@ class EasyWhiteListFromContentTestClass(aiounittest.AsyncTestCase):
         self.assertTrue("potiron" in result)
         self.assertTrue("glandine" in result)
 
+    async def test_get_whitelist_from_content_missing_event(self):
+
+        self.module._api._store = mock.MagicMock()
+        self.module._api._store.get_latest_event_ids_in_room = mock.AsyncMock(
+            return_value=["event56"]
+        )
+        self.module._api._store.get_event = mock.AsyncMock(return_value=None)
+
+        result = await self.module.get_whitelist_from_content()
+
+        self.assertEqual(result, set())
+
+    async def test_get_whitelist_from_content_normalizes_lines(self):
+
+        event56 = create_event("  Yvonne  \n\n  Roger\n")
+
+        self.module._api._store = mock.MagicMock()
+        self.module._api._store.get_latest_event_ids_in_room = mock.AsyncMock(
+            return_value=["event56"]
+        )
+        self.module._api._store.get_event = mock.AsyncMock(return_value=event56)
+
+        result = await self.module.get_whitelist_from_content()
+
+        self.assertEqual(result, {"yvonne", "roger"})
+
+    async def test_check_registration_whitelist_allowed(self):
+
+        self.module.get_whitelist_from_content = mock.AsyncMock(return_value={"yvonne"})
+
+        result = await self.module.check_registration_whitelist(
+            None, "Yvonne", [], "oidc-idp_id"
+        )
+        self.assertEqual(result, RegistrationBehaviour.ALLOW)
+
+    async def test_check_registration_whitelist_denied(self):
+
+        self.module.get_whitelist_from_content = mock.AsyncMock(return_value={"yvonne"})
+
+        result = await self.module.check_registration_whitelist(
+            None, "roger", [], "oidc-idp_id"
+        )
+        self.assertEqual(result, RegistrationBehaviour.DENY)
+
+    async def test_check_registration_whitelist_no_provider_id(self):
+
+        # Used to raise a TypeError while logging auth_provider_id
+        result = await self.module.check_registration_whitelist(
+            None, "yvonne", [], None
+        )
+        self.assertEqual(result, RegistrationBehaviour.ALLOW)
+
     async def test_check_registration_whitelist_other_idp(self):
 
         result = await self.module.check_registration_whitelist(
@@ -180,4 +232,11 @@ def test_parse_config():
     )
 
     assert config.idp_id == "oidc-idp_id"
+    assert config.room_id == "room_id"
+
+
+def test_parse_config_without_idp_id():
+    config = EasyWhiteList.parse_config({"room_id": "room_id"})
+
+    assert config.idp_id is None
     assert config.room_id == "room_id"

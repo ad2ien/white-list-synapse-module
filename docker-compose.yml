@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:15-alpine
+    image: postgres:15.19-alpine
     volumes:
       - keycloak-db:/var/lib/postgresql/data
       - ./docker-test-config/db-init:/docker-entrypoint-initdb.d
@@ -15,7 +15,7 @@ services:
       retries: 3
 
   keycloak:
-    image: keycloak/keycloak:26.4
+    image: keycloak/keycloak:26.8.1
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -39,7 +39,7 @@ services:
       - --health-enabled=true
 
   keycloak-health:
-    image: curlimages/curl
+    image: curlimages/curl:8.23.0
     command: ["sh", "-c", "while true; do sleep 1; done"]
     healthcheck:
       test:
@@ -53,7 +53,7 @@ services:
       start_period: 30s
 
   synapse:
-    image: matrixdotorg/synapse:v1.155.0
+    image: matrixdotorg/synapse:v1.163.2
     ports:
       - "8008:8008"
     volumes:
@@ -70,7 +70,7 @@ services:
 
 
   element:
-    image: vectorim/element-web:v1.12.21
+    image: vectorim/element-web:v1.12.32
     ports:
       - "1983:80"
     volumes:

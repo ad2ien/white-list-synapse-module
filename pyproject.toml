@@ -1,3 +1,36 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools>=84.2.1"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "easy_white_list_module"
+version = "0.1.1"
+description = "A synapse module used to manage a user white list"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+dependencies = [
+  "attrs>=26.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  # for tests
+  "matrix-synapse>=1.163.2",
+  "pytest>=9.1.1",
+  "tox>=4.67.1",
+  "aiounittest>=1.5.0",
+  # for type checking
+  "mypy>=2.4.0",
+  # for linting
+  "black>=26.10.1",
+  "flake8>=7.4.1",
+  "isort>=9.0.2",
+]
+
+[tool.setuptools]
+packages = ["white_list_module"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
