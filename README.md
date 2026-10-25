@@ -15,32 +15,22 @@ To do so, this repo contains a Synapse Module that will use `check_registration_
 
 ## Try it out
 
-### some /etc/hosts entries
-
-```bash
-echo "127.0.0.1 idp.local" | sudo tee -a /etc/hosts
-echo "127.0.0.1 matrix.local" | sudo tee -a /etc/hosts
-```
-
 ### Run the stack
 
 ```bash
 docker compose up -d
 ```
 
-depending on your set up you may have to do this for Synapse to run properly:
-
-```bash
-mkdir docker-test-config/mx-data/media_store; 
-sudo chown -R root:root docker-test-config/mx-data/ 
-```
+- Keycloak (admin + IdP): <http://localhost:8080>
+- Synapse: <http://localhost:8008>
+- Element: <http://localhost:1983>
 
 ### Create users
 
 Create a _whitelist-manager_ and _beta-tester_ user
 
-- Go to <https://idp.local:8443>
-- login with admin /admin
+- Go to <http://localhost:8080>
+- login with admin / admin
 - select `local` realm
 - users / `Add a user`
 - fill at least Username and save
@@ -48,13 +38,14 @@ Create a _whitelist-manager_ and _beta-tester_ user
 
 ### Create white list
 
-- Go to <http://localhost:1983> (https-only browser mode off)
-- Login with _whitelist-manager_ user
+- Go to <http://localhost:1983>
+- Login with _whitelist-manager_ user (via Keycloak SSO)
 - Create an **unencrypted** room called Whitelist
 - Write a message containing some random user id
 - Get the room ID
 - edit `docker-test-config/mx-conf/homeserver.yaml`
-- fill this part:
+- set `room_id` to the ID you just copied, then restart Synapse
+  (`docker compose restart synapse`):
   
   ```yaml
     module: white_list_module.EasyWhiteList
@@ -62,13 +53,16 @@ Create a _whitelist-manager_ and _beta-tester_ user
       room_id: ROOM_IDs
   ```
 
+> If the module's `room_id` is empty the everyone is allowed. If `room_id` points to a room that doesn't exist yet, every registration is denied.
+
 ### Try to join
 
-- Open an other browser session
+- Open another browser session (or incognito)
 - Go to <http://localhost:1983>
-- Try login with _beta-tester_ user, you'll be denied
-- Go back to the whitelist room
-- edit your message or write a new message containing _beta-tester_ username
+- Try to login with _beta-tester_ user via Keycloak SSO, you'll be denied
+- Go back to the whitelist room (as _whitelist-manager_)
+- edit your message or write a new message containing the _beta-tester_ username
+- Go back to the login (as _beta-tester_) and try again
 - -> You should be accepted 🎉
 
 ## Dev

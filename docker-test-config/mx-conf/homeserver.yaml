@@ -10,7 +10,7 @@
 # each option, go to docs/usage/configuration/config_documentation.md or
 # https://matrix-org.github.io/synapse/latest/usage/configuration/config_documentation.html
 server_name: "matrix.local"
-public_baseurl: http://matrix.local:8008/
+public_baseurl: http://localhost:8008/
 serve_server_wellknown: true
 pid_file: /data/homeserver.pid
 listeners:
@@ -45,13 +45,25 @@ trusted_key_servers:
 modules:
   - module: white_list_module.EasyWhiteList
     config:
-      room_id: "!jivuRwBeHCrBfCdkbE:matrix.local"
+      # Leave this empty until the whitelist room exists: with an empty room_id
+      # the module allows everyone, which lets you bootstrap the
+      # whitelist-manager account and create the room. Then set the real room ID
+      # and restart Synapse.
+      room_id: ""
       idp_id: "keycloak"
 oidc_providers:
   - idp_id: keycloak
     idp_name: "Random Connect"
+    # `discover: false` + explicit endpoints: the browser must be sent to
+    # localhost:8080 (Keycloak's public KC_HOSTNAME), while Synapse itself must
+    # reach Keycloak via the docker service name `keycloak:8080`.
+    discover: false
     skip_verification: true
-    issuer: "https://keycloak:8443/realms/local"
+    issuer: "http://localhost:8080/realms/local"
+    authorization_endpoint: "http://localhost:8080/realms/local/protocol/openid-connect/auth"
+    token_endpoint: "http://keycloak:8080/realms/local/protocol/openid-connect/token"
+    userinfo_endpoint: "http://keycloak:8080/realms/local/protocol/openid-connect/userinfo"
+    jwks_uri: "http://keycloak:8080/realms/local/protocol/openid-connect/certs"
     client_id: "synapse"
     client_secret: "M5nXccmhTMzDldFs2FYQFTLJVAw8yjLk"
     scopes: ["openid", "profile"]
@@ -59,4 +71,21 @@ oidc_providers:
       config:
         localpart_template: "{{ user.preferred_username }}"
         display_name_template: "{{ user.name }}"
-    backchannel_logout_enabled: true # Optional
+    backchannel_logout_enabled: false
+enable_registration: true
+enable_registration_without_verification: true
+
+# Dev-only: relaxed rate limits so repeated OIDC login attempts don't return 429.
+rc_login:
+  address:
+    per_second: 100
+    burst_count: 1000
+  account:
+    per_second: 100
+    burst_count: 1000
+  failed_attempts:
+    per_second: 100
+    burst_count: 1000
+rc_registration:
+  per_second: 100
+  burst_count: 1000

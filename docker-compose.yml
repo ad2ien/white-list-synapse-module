@@ -21,7 +21,8 @@ services:
       - "8443:8443"
       - "9000:9000"
     environment:
-      - KC_HOSTNAME=idp.local
+      - KC_HOSTNAME=http://localhost:8080
+      - KC_HTTP_ENABLED=true
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KEYCLOAK_LOGLEVEL=INFO
@@ -31,14 +32,10 @@ services:
       - KC_DB_USERNAME=root
       - KC_DB_PASSWORD=secret
     volumes:
-      - ./docker-test-config/kc-conf/certificate.pem:/opt/keycloak/certificate.pem:ro
-      - ./docker-test-config/kc-conf/privatekey.pem:/opt/keycloak/privatekey.pem:ro
       - ./docker-test-config/realm-export-local.json:/opt/keycloak/data/import/realm-export-local.json:ro
     command:
       - start
       - --import-realm
-      - --https-certificate-file=/opt/keycloak/certificate.pem
-      - --https-certificate-key-file=/opt/keycloak/privatekey.pem
       - --health-enabled=true
 
   keycloak-health:
@@ -48,7 +45,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl --head -fsS --insecure --http1.1 https://keycloak:9000/health/ready",
+          "curl -fsS --http1.1 http://keycloak:9000/health/ready -o /dev/null",
         ]
       interval: 15s
       timeout: 30s
@@ -62,7 +59,6 @@ services:
     volumes:
       - ./docker-test-config/mx-data:/data
       - ./docker-test-config/mx-conf:/mx-conf/
-      - ./docker-test-config/kc-conf/certificate.pem:/mx-conf/cert/certificate.pem:ro
       - ./white_list_module/:/usr/local/lib/python3.13/site-packages/white_list_module
     depends_on:
       db:
@@ -71,10 +67,7 @@ services:
         condition: service_healthy
     environment:
       - SYNAPSE_CONFIG_PATH=/mx-conf/homeserver.yaml
-      - SSL_CERT_FILE=/mx-conf/cert/certificate.pem
-    extra_hosts:
-    # or what ever `ip addr show docker0` is showing
-      - "idp.local=172.17.0.1"
+
 
   element:
     image: vectorim/element-web:v1.12.21

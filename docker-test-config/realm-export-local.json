@@ -253,19 +253,19 @@
       "clientId": "synapse",
       "name": "Synapse client",
       "description": "",
-      "rootUrl": "http://matrix.local:8008",
-      "adminUrl": "http://matrix.local:8008",
-      "baseUrl": "http://matrix.local:8008",
+      "rootUrl": "http://localhost:8008",
+      "adminUrl": "http://localhost:8008",
+      "baseUrl": "http://localhost:8008",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "M5nXccmhTMzDldFs2FYQFTLJVAw8yjLk",
       "redirectUris": [
-        "*"
+        "http://localhost:8008/_synapse/client/oidc/callback"
       ],
       "webOrigins": [
-        "*"
+        "http://localhost:8008"
       ],
       "notBefore": 0,
       "bearerOnly": false,
