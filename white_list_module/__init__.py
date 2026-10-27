@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Collection, Dict, Optional, Tuple
+from typing import Any, Collection, Dict, Optional, Set, Tuple
 
 import attr
 from synapse.module_api import ModuleApi
@@ -85,11 +85,16 @@ class EasyWhiteList:
         Returns:
             A collection of user IDs to whitelist
         """
-        whitelist = set()
+        whitelist: Set[str] = set()
 
-        last_events = await self._api._store.get_latest_event_ids_in_room(
-            self._config.room_id
-        )
+        room_id = self._config.room_id
+        if not room_id:
+            return whitelist
+
+        # Synapse's private store API; its type stubs are unreliable across
+        # versions, so treat it as Any.
+        store: Any = self._api._store
+        last_events = await store.get_latest_event_ids_in_room(room_id)
 
         if not last_events or len(last_events) == 0:
             return whitelist
@@ -97,7 +102,7 @@ class EasyWhiteList:
         event_id: Optional[str] = list(last_events)[0]
 
         while event_id:
-            event = await self._api._store.get_event(event_id, allow_none=True)
+            event = await store.get_event(event_id, allow_none=True)
             if event is None:
                 break
 
@@ -125,10 +130,10 @@ class EasyWhiteList:
         Returns:
             The content of the last message
         """
-        while "m.new_content" in event_content.keys():
+        while "m.new_content" in event_content:
             event_content = event_content["m.new_content"]
 
-        if "body" not in event_content.keys():
+        if "body" not in event_content:
             return ""
 
         return event_content["body"]

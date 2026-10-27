@@ -7,7 +7,7 @@ name = "easy_white_list_module"
 version = "0.1.1"
 description = "A synapse module used to manage a user white list"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.14"
 license = "Apache-2.0"
 dependencies = [
   "attrs>=26.1.0",
@@ -32,5 +32,5 @@ dev = [
 packages = ["white_list_module"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.14"
 ignore_missing_imports = true
